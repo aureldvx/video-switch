@@ -1,12 +1,23 @@
 class VideoTransition {
   
   constructor() {
-    this.player = document.createElement('video');
+    this.iframe = document.createElement('iframe');
     this.button = document.querySelector('.start');
     this.overlay = document.querySelector('.overlay');
-    this.videos = ['video1', 'video2', 'video3'];
+    this.videos = ['517180316', '517190044', '517190175'];
     this.index = 0;
     this.listing = {};
+
+    this.iframe.setAttribute('webkitallowfullscreen', 'webkitallowfullscreen');
+    this.iframe.setAttribute('mozallowfullscreen', 'mozallowfullscreen');
+    this.iframe.setAttribute('allowfullscreen', 'allowfullscreen');
+    this.iframe.setAttribute('frameborder', '0');
+    this.iframe.setAttribute('allow', 'autoplay');
+    this.iframe.setAttribute('cross-origin', 'anonymous');
+    this.iframe.src = `https://player.vimeo.com/video/${this.videos[0]}`
+    document.body.appendChild(this.iframe);
+
+    this.player = new Vimeo.Player(this.iframe);
 
     this.init();
   }
@@ -19,55 +30,52 @@ class VideoTransition {
   }
 
   playVideo() {
-    this.player.setAttribute('controls', 'controls');
-    document.body.appendChild(this.player);
-    
-    this.fetchVideo(`video${this.index + 1}`).then(() => {
-      this.overlay.style.visibility = 'hidden';
-      this.overlay.style.pointerEvents = 'none';
-      this.player.style.pointerEvents = 'all';
-      this.player.play();
-    });
+    this.overlay.style.visibility = 'hidden';
+    this.overlay.style.pointerEvents = 'none';
+    this.iframe.style.pointerEvents = 'all';
+    this.player.play();
   }
 
   listeners() {
-    this.player.addEventListener('ended', () => {
+    this.player.on('ended', () => {
+
       if (this.index === 0) {
         const button1 = document.createElement('button');
         button1.setAttribute('data-target', '1');
         button1.innerText = 'Chemin n°1';
 
-        const button2 = document.createElement('button');
-        button2.setAttribute('data-target', '2');
-        button2.innerText = 'Chemin n°2';
-
         this.overlay.innerHTML = '';
         this.overlay.appendChild(button1);
-        this.overlay.appendChild(button2);
 
         this.overlay.style.visibility = 'visible';
         this.overlay.style.pointerEvents = 'all';
-        this.player.style.pointerEvents = 'none';
-
-        button1.addEventListener('click', async () => {
+        
+        button1.addEventListener('click', () => {
           this.index = 1;
-          await this.nextStep();
+          this.player.loadVideo(this.videos[1]).then(() => {
+            this.overlay.style.visibility = 'hidden';
+            this.overlay.style.pointerEvents = 'none';
+            this.player.play();
+          });
         });
-        button2.addEventListener('click', async () => {
-          this.index = 2;
-          await this.nextStep();
+      }
+      
+      if(this.index === 1) {
+        this.index = 2;
+        this.player.loadVideo(this.videos[2]).then(() => {
+          this.player.play();
         });
       }
     });
   }
 
   async nextStep() {
-    this.fetchVideo(this.videos[this.index]).then(() => {
+    this.player.loadVideo(this.videos[1]).then(() => {
       this.overlay.style.visibility = 'hidden';
       this.overlay.style.pointerEvents = 'none';
-      this.player.style.pointerEvents = 'all';
       this.player.play();
     });
+
   }
 
   async fetchVideo(video) {

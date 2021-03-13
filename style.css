@@ -9,9 +9,9 @@ body {
   height: 100vh;
 }
 
-video {
+iframe {
   width: 100%;
-  height: 100%;
+  height: 100vh;
   object-fit: cover;
   object-position: center;
 }
@@ -25,6 +25,7 @@ video {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  background-color: #fff;
 }
 
 .overlay button {
